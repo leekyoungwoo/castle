@@ -1,0 +1,35 @@
+파일 리스트 조회: |
+  SELECT FI.file_no AS uid
+  	,FI.file_name AS name
+  	,FI.raw_name
+    ,FI.file_url AS url
+    ,FI.directory_no
+  	,date_part('epoch', FI.reg_date) AS reg_epoch
+  FROM file_info FI
+  INNER JOIN user_directory UD ON UD.directory_no = FI.directory_no
+  WHERE FI.directory_no = {{ directoryNo }}
+    {% if userType == 2 %}
+  	AND UD.user_no = {{ userNo }}
+    {% endif %}
+  ORDER BY FI.file_no ASC;
+
+파일 추가: |
+  INSERT INTO file_info (
+    file_name
+    ,raw_name
+    ,file_url
+    ,directory_no
+  ) VALUES
+  (
+    {{ fileName }}
+    ,{{ rawName }}
+    ,{{ fileUrl }}
+    ,{{ directoryNo }}
+  )
+  RETURNING *
+
+파일 삭제: |
+  DELETE FROM file_info
+  WHERE file_no = {{ fileNo }}
+    AND directory_no = {{ directoryNo }}
+  RETURNING *

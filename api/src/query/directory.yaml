@@ -1,0 +1,26 @@
+파일구조 조회: |
+  SELECT DI.directory_no
+  	,DI.directory_name
+    {% if userType == 2 %}
+  	,CASE
+      WHEN DI.directory_owner = UD.user_no
+        THEN DI.parent_directory_no
+      ELSE NULL
+      END AS parent_directory_no
+    {% else %}
+    ,DI.parent_directory_no
+    {% endif %}
+    ,DI.directory_owner
+  	,date_part('epoch', DI.reg_date) AS reg_epoch
+  FROM directory_info DI
+  INNER JOIN user_directory UD ON UD.directory_no = DI.directory_no
+  WHERE TRUE
+  {% if userType == 2 %}
+    AND UD.user_no = {{ userNo }}
+  {% endif %}
+
+사용자 유무 확인: |
+  SELECT *
+  FROM user_info
+  WHERE is_enable = 1
+    AND user_id = {{ userId }}

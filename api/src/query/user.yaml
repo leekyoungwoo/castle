@@ -1,0 +1,66 @@
+유저 리스트 조회: |
+  SELECT row_number() OVER (
+        ORDER BY user_no ASC
+        ) AS rnum
+    ,*
+  FROM (
+  	SELECT user_no
+        ,user_no AS key
+  		,user_id
+  		,user_name
+  		,user_email
+  		,user_type
+  		,date_part('epoch', reg_date) AS reg_epoch
+  	FROM user_info
+    WHERE is_enable = 1
+  	) UI
+  ORDER BY rnum DESC
+
+사용자 추가: |
+  UPDATE user_info
+  SET user_no = user_no
+      ,user_id = {{ userId }}
+      ,user_name = {{ userName }}
+      ,user_email = {{ userEmail }}
+    {% if userPasswd %}
+    ,user_passwd = {{ userPasswd }}
+    {% endif %}
+  WHERE user_no = {{ userNo }}
+  RETURNING *
+
+사용자 수정: |
+  UPDATE user_info
+  SET user_no = user_no
+  	,user_name = {{ userName }}
+  	,user_id = {{ userId }}
+  	,user_email = {{ userEmail }}
+    {% if userPasswd %}
+    ,user_passwd = {{ userPasswd }}
+    {% endif %}
+  WHERE user_no = {{ userNo }}
+  RETURNING *
+
+
+내 정보 수정: |
+  UPDATE user_info
+  SET user_no = user_no
+  {% if userName %}
+  	,user_name = {{ userName }}
+  {% endif %}
+  {% if userId %}
+  	,user_id = {{ userId }}
+  {% endif %}
+  {% if userEmail %}
+  	,user_email = {{ userEmail }}
+  {% endif %}
+  {% if userPhone %}
+  	,user_phone = {{ userPhone }}
+  {% endif %}
+  WHERE user_no = {{ userNo }}
+  RETURNING *
+
+회원 탈퇴: |
+  UPDATE user_info
+  SET is_enable = 0
+  WHERE user_no = {{ userNo }}
+  RETURNING *

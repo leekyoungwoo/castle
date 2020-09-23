@@ -1,0 +1,203 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.12
+-- Dumped by pg_dump version 10.12
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+--
+-- Name: intarray; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS intarray WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION intarray; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION intarray IS 'functions, operators, and index support for 1-D arrays of integers';
+
+
+--
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
+
+--
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: user_info; Type: TABLE; Schema: public; Owner: castleadmin
+--
+
+CREATE TABLE public.user_info (
+    user_no integer NOT NULL,
+    user_id text NOT NULL,
+    user_passwd text,
+    user_name text,
+    user_email text,
+    user_phone text,
+    user_type smallint DEFAULT 2,
+    user_enabled smallint DEFAULT 1,
+    login_fail_count smallint DEFAULT 0,
+    passwd_update_date timestamp with time zone DEFAULT now(),
+    passwd_reset_key text,
+    passwd_reset_ready smallint,
+    extra_info jsonb DEFAULT '{}'::jsonb,
+    modify_date timestamp with time zone DEFAULT now(),
+    reg_date timestamp with time zone DEFAULT now(),
+    is_enable smallint DEFAULT 1
+)
+WITH (fillfactor='70');
+
+
+ALTER TABLE public.user_info OWNER TO castleadmin;
+
+--
+-- Name: user_info_user_no_seq; Type: SEQUENCE; Schema: public; Owner: castleadmin
+--
+
+CREATE SEQUENCE public.user_info_user_no_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_info_user_no_seq OWNER TO castleadmin;
+
+--
+-- Name: user_info_user_no_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: castleadmin
+--
+
+ALTER SEQUENCE public.user_info_user_no_seq OWNED BY public.user_info.user_no;
+
+
+--
+-- Name: user_info user_no; Type: DEFAULT; Schema: public; Owner: castleadmin
+--
+
+ALTER TABLE ONLY public.user_info ALTER COLUMN user_no SET DEFAULT nextval('public.user_info_user_no_seq'::regclass);
+
+
+--
+-- Data for Name: user_info; Type: TABLE DATA; Schema: public; Owner: castleadmin
+--
+
+COPY public.user_info (user_no, user_id, user_passwd, user_name, user_email, user_phone, user_enabled, login_fail_count, passwd_update_date, passwd_reset_key, passwd_reset_ready, extra_info, modify_date, reg_date, is_enable) FROM stdin;
+\.
+
+
+--
+-- Name: user_info_user_no_seq; Type: SEQUENCE SET; Schema: public; Owner: castleadmin
+--
+
+SELECT pg_catalog.setval('public.user_info_user_no_seq', 1, false);
+
+
+--
+-- Name: user_info user_info_pkey; Type: CONSTRAINT; Schema: public; Owner: castleadmin
+--
+
+ALTER TABLE ONLY public.user_info
+    ADD CONSTRAINT user_info_pkey PRIMARY KEY (user_no);
+
+
+--
+-- Name: user_info_is_enable_idx; Type: INDEX; Schema: public; Owner: castleadmin
+--
+
+CREATE INDEX user_info_is_enable_idx ON public.user_info USING btree (is_enable);
+
+
+--
+-- Name: user_info_user_email_idx; Type: INDEX; Schema: public; Owner: castleadmin
+--
+
+CREATE INDEX user_info_user_email_idx ON public.user_info USING btree (user_email) WITH (fillfactor='80');
+
+
+--
+-- Name: user_info_user_email_idx_gin; Type: INDEX; Schema: public; Owner: castleadmin
+--
+
+CREATE INDEX user_info_user_email_idx_gin ON public.user_info USING gin (user_email public.gin_trgm_ops);
+
+
+--
+-- Name: user_info_user_id_idx; Type: INDEX; Schema: public; Owner: castleadmin
+--
+
+CREATE INDEX user_info_user_id_idx ON public.user_info USING btree (user_id);
+
+
+--
+-- Name: user_info_user_name_idx; Type: INDEX; Schema: public; Owner: castleadmin
+--
+
+CREATE INDEX user_info_user_name_idx ON public.user_info USING btree (user_name) WITH (fillfactor='90');
+
+
+--
+-- Name: user_info_user_name_idx_gin; Type: INDEX; Schema: public; Owner: castleadmin
+--
+
+CREATE INDEX user_info_user_name_idx_gin ON public.user_info USING gin (user_name public.gin_trgm_ops);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
