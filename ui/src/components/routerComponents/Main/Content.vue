@@ -16,6 +16,7 @@
       :before-upload="beforeUpload"
       @preview="handlePreview"
       @change="handleChange"
+      @download="console.log('down')"
     >
       <img v-if="imageUrl" :src="imageUrl" alt="avatar" />
       <div v-else>

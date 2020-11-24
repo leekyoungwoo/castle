@@ -79,8 +79,24 @@ class File(Resource):
     def delete(self):
         p = self.p
 
-        user_no = g.user['userNo']
-        sql, bind_param = SQL.prepare_query(QUERY['file.yaml']['파일 삭제'], {**p, 'userNo': user_no})
-        res = self.db.query(sql, bind_param)
+        root_dir = current_app.config['FILE_ROOT_DIR']
 
-        return make_response(200, res)
+        user_no = g.user['userNo']
+
+        with self.db.cursor() as cus:
+            try:
+                sql, bind_param = SQL.prepare_query(QUERY['file.yaml']['파일 삭제'], {**p, 'userNo': user_no})
+                res = self.db.query(sql, bind_param)
+
+                if not os.path.isfile(os.path.join(root_dir, str(user_no), res[0]['raw_name'])):
+                    return make_response(400, error={'code': 4, 'error': 'not file'})
+
+                os.remove(os.path.join(root_dir, str(user_no), res[0]['raw_name']))
+
+                return make_response(200, res)
+
+            except Exception as e:
+                current_app.logger.exception(e)
+                cus.rollback()
+                return make_response(200, error={'code': 2, 'error': 'sql failed'})
+
